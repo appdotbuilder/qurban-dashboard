@@ -1,9 +1,21 @@
 
+import { db } from '../db';
+import { processLogsTable } from '../db/schema';
 import { type ProcessLog } from '../schema';
 
-export async function getProcessLogs(): Promise<ProcessLog[]> {
-    // This is a placeholder declaration! Real code should be implemented here.
-    // The goal of this handler is fetching all process logs from the database.
-    // This will be used to track the complete process history across all animals.
-    return [];
-}
+export const getProcessLogs = async (): Promise<ProcessLog[]> => {
+  try {
+    const results = await db.select()
+      .from(processLogsTable)
+      .execute();
+
+    // Convert numeric fields back to numbers
+    return results.map(log => ({
+      ...log,
+      weight_recorded: log.weight_recorded ? parseFloat(log.weight_recorded) : null
+    }));
+  } catch (error) {
+    console.error('Failed to fetch process logs:', error);
+    throw error;
+  }
+};
